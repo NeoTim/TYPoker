@@ -41,6 +41,7 @@
     <Compile Include="Src\Card.cs" />
     <Compile Include="Src\Hand.cs" />
     <Compile Include="Src\Util.cs" />
+    <Compile Include="Src\BitOperations.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Src\" />

@@ -14,11 +14,11 @@ namespace TYPoker
             // Testing...
 
 
-            Card hole1 = new Card(ESuit.Hearts,     ECardValue.Jack);
-            Card hole2 = new Card(ESuit.Hearts,     ECardValue.Five);
-            Card flop1 = new Card(ESuit.Hearts,     ECardValue.Two);
-            Card flop2 = new Card(ESuit.Hearts,     ECardValue.Three);
-            Card flop3 = new Card(ESuit.Hearts,     ECardValue.Four);
+            Card hole1 = new Card(ESuit.Hearts,     ECardValue.Four);
+            Card hole2 = new Card(ESuit.Hearts,     ECardValue.Six);
+            Card flop1 = new Card(ESuit.Spades,     ECardValue.Two);
+            Card flop2 = new Card(ESuit.Clubs,     ECardValue.Five);
+            Card flop3 = new Card(ESuit.Diamonds,     ECardValue.Ten);
 
 
 
@@ -31,7 +31,7 @@ namespace TYPoker
 		   Card flop3 = new Card(ESuit.Hearts, ECardValue.Ace); */
 
 			Card turn = new Card(ESuit.Clubs, ECardValue.Ace);
-            Card river = new Card(ESuit.Diamonds, ECardValue.Ace);
+            Card river = new Card(ESuit.Diamonds, ECardValue.Queen);
 
 
             Hand aHand = new Hand();
@@ -52,15 +52,20 @@ namespace TYPoker
 
             PokerLogic.CheckStraightFlush(aHand); // Royal Flush included
             PokerLogic.CheckFourOfAKind(aHand);
-			PokerLogic.CheckFullHouse(aHand); // 
-            // PokerLogic.CheckThreeOfAKind(aHand); // Checked in Full house
+			PokerLogic.CheckFullHouse(aHand); 
             PokerLogic.CheckFlush(aHand);
+            PokerLogic.CheckStraight(aHand);
+            // PokerLogic.CheckThreeOfAKind(aHand); // Checked in Full house
+            // two pair, one pair, high card
+            PokerLogic.CheckPair(aHand);
 
-           // Console.WriteLine(PokerLogic.CalLowBit(1));
+            Console.WriteLine("High card is " + aHand.m_uiHighCard);
+
+            // Console.WriteLine(PokerLogic.CalLowBit(1));
 
 
-            //Console.WriteLine(PokerLogic.CountBits(1023));
+			//Console.WriteLine(PokerLogic.CountBits(1023));
 
-        }
+		}
     }
 }

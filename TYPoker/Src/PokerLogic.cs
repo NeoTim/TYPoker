@@ -77,7 +77,7 @@ namespace TYPoker.Src
             if(hand.m_bFourOfAKind)
             {
                 // This value: A-->14, K-->13
-                hand.m_uiHighCard = CalLowBit(bitsFourOfAKind) + 1; // AKQ...32(a)
+                hand.m_uiHighCard = BitOperations.CalLowBit(bitsFourOfAKind) + 1; // AKQ...32(a)
             }
 
 
@@ -102,7 +102,7 @@ namespace TYPoker.Src
             if(hand.m_bThreeOfAKind)
             {
                 // 2 x threeOfAKind
-                if(CountBits((UInt32)bitThreeOfAKind) > 1)
+                if(BitOperations.CountBits((UInt32)bitThreeOfAKind) > 1)
                 {
                     hand.m_bFullHouse = true;
                 }
@@ -181,15 +181,22 @@ namespace TYPoker.Src
             return isFlush;
         }
 
-        public static bool CheckStright(Hand hand)
+        public static bool CheckStraight(Hand hand)
         {
 			if (hand.m_bStraightFlush) return true;
 
 			if (hand.m_bFourOfAKind) return false;
 
+            int allBits = hand.m_iStraightBit[0] | hand.m_iStraightBit[1] |
+                          hand.m_iStraightBit[2] | hand.m_iStraightBit[3];
 
-            // TODO
-            return true;
+
+            // A -> a
+			allBits |= hand.m_iStraightBit[0] >> 13 | hand.m_iStraightBit[1] >> 13 |
+					   hand.m_iStraightBit[2] >> 13 | hand.m_iStraightBit[3] >> 13;
+
+
+            return (allBits & (allBits << 1) & (allBits << 2) & (allBits << 3) & (allBits << 4)) != 0;
         }
 
 
@@ -216,12 +223,12 @@ namespace TYPoker.Src
 				/// Using lowBit + shift for calculation
 				/// You can only have at most 2 three-of-a-kind (7 cards)
 				///hand.m_uiHighCard = CalHighBit(bitThreeOfAKind) + 1; // AKQ...32(a)
-				UInt32 aLowThree = CalLowBit(bitThreeOfAKind) + 1;
+				UInt32 aLowThree = BitOperations.CalLowBit(bitThreeOfAKind) + 1;
 
 				Int32 tmp = (bitThreeOfAKind >> ((Int32)aLowThree));
 				if (tmp > 0) // has another higher three?
 				{
-					hand.m_uiHighCard = aLowThree + (CalLowBit(tmp) + 1);
+					hand.m_uiHighCard = aLowThree + (BitOperations.CalLowBit(tmp) + 1);
 
 					Console.WriteLine("Has 2 three of a kind " + aLowThree + ", " + hand.m_uiHighCard);
 				}
@@ -239,53 +246,26 @@ namespace TYPoker.Src
             return bitThreeOfAKind;
 		}
 
-
-
-        // TODO move to math class
-        // 0 based
-        // 0, 1     --> 0
-        // 2 (10)   --> 1
-        public static UInt32 CalLowBit(Int32 b)
+        public static UInt32 CheckPair(Hand hand)
         {
-            // C++
-            // float f = (float)(b & -b);
-            // return (*(uint32_t*)&f >> 23) - 0x7f;
+            // if (hand.m_bFourOfAKind || hand.m_bFullHouse || hand.m_bThreeOfAKind) return true;
+
+            Int32 pairBits = (hand.m_iStraightBit[0] & hand.m_iStraightBit[1]) |
+                             (hand.m_iStraightBit[0] & hand.m_iStraightBit[2]) |
+                             (hand.m_iStraightBit[0] & hand.m_iStraightBit[3]) |
+                             (hand.m_iStraightBit[1] & hand.m_iStraightBit[2]) |
+                             (hand.m_iStraightBit[1] & hand.m_iStraightBit[3]) |
+                             (hand.m_iStraightBit[2] & hand.m_iStraightBit[3]);
 
 
-            if (b == 0) return 0; // unused
+            UInt32 count = BitOperations.CountBits((UInt32)pairBits);
 
-            UInt32 count = 0;
-            while((b & 1) == 0)
-            {
-                b >>= 1;
-                count++;
-            }
+            Console.WriteLine("Number of pairs: " + count);
 
             return count;
-		}
-/*
-        public static UInt32 CalHighBit(Int32 b)
-        {
-            if (b == 0) return 0; // unused
-
-            UInt32 count = 0;
-            UInt32 v = 1;
-
-            while(b > v)
-            {
-                v <<= 1;
-                count++;
-            }
-            // 0 based counting
-            return count;
         }
-*/
 
-		// Bit Hacks:  at most 14-bit values in b, perfect for single suit
-		public static UInt32 CountBits(UInt32 b)
-        {
-            return (UInt32)((b * 0x200040008001ul & 0x111111111111111ul)% 0xf);
-        }
+
     }
 
 }

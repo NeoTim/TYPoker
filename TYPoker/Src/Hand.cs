@@ -12,8 +12,10 @@ namespace TYPoker.Src
         internal Int32 m_iFlushBit;
         internal Int32[] m_iStraightBit = new Int32[PokerLogic.kSuitSize];
 
-        internal Int32 m_iHandValue;
+        //internal Int32 m_iHandValue;
         internal UInt32 m_uiHighCard;
+
+        //TODO: tie breaker for each tier
 
         private Card[] m_CardHole = new Card[2];
 
@@ -46,8 +48,8 @@ namespace TYPoker.Src
             m_CardHole[0] = c1;
             m_CardHole[1] = c2;
 
-            m_iHandValue |= 1 << c1.GetValueIndex();
-            m_iHandValue |= 1 << c2.GetValueIndex();
+            //m_iHandValue |= 1 << c1.GetValueIndex();
+           // m_iHandValue |= 1 << c2.GetValueIndex();
 
 
 
@@ -70,9 +72,9 @@ namespace TYPoker.Src
             m_CardFlop[1] = c2;
             m_CardFlop[2] = c3;
 
-            m_iHandValue |= 1 << c1.GetValueIndex();
-            m_iHandValue |= 1 << c2.GetValueIndex();
-            m_iHandValue |= 1 << c3.GetValueIndex();
+            //m_iHandValue |= 1 << c1.GetValueIndex();
+            //m_iHandValue |= 1 << c2.GetValueIndex();
+            //m_iHandValue |= 1 << c3.GetValueIndex();
 
             // check game stage
 
@@ -84,7 +86,7 @@ namespace TYPoker.Src
             m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
             m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
             m_CardTurn = c1;
-			m_iHandValue |= 1 << c1.GetValueIndex();
+			//m_iHandValue |= 1 << c1.GetValueIndex();
 
 			if (debug) DebugPrint();
         }
@@ -94,7 +96,7 @@ namespace TYPoker.Src
 			m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
 			m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
             m_CardRiver = c1;
-			m_iHandValue |= 1 << c1.GetValueIndex();
+			//m_iHandValue |= 1 << c1.GetValueIndex();
 
 			if (debug) DebugPrint();
 		}
