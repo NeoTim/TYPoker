@@ -18,5 +18,10 @@ namespace TYPoker.Src
             Console.WriteLine(Convert.ToString(number, 2).PadLeft(pad, '0'));
 
         }
+
+        public static void BinaryPrint64(Int64 number, int pad=64)
+        {
+			Console.WriteLine(Convert.ToString(number, 2).PadLeft(pad, '0'));
+        }
     }
 }

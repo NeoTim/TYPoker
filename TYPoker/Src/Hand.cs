@@ -35,7 +35,7 @@ namespace TYPoker.Src
         {
         }
 
-        public void SetHole(Card c1, Card c2)
+        public void SetHole(Card c1, Card c2, bool debug = false)
         {
             m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
             m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c2.Suit];
@@ -53,10 +53,10 @@ namespace TYPoker.Src
 
             // check Game Stage
 
-            DebugPrint();
+            if(debug) DebugPrint();
         }
 
-        public void SetFlop(Card c1, Card c2, Card c3)
+        public void SetFlop(Card c1, Card c2, Card c3, bool debug = false)
         {
 			m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
 			m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c2.Suit];
@@ -76,37 +76,39 @@ namespace TYPoker.Src
 
             // check game stage
 
-            DebugPrint();
+            if (debug) DebugPrint();
         }
 
-        public void SetTurn(Card c1)
+        public void SetTurn(Card c1, bool debug = false)
         {
             m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
             m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
             m_CardTurn = c1;
 			m_iHandValue |= 1 << c1.GetValueIndex();
+
+			if (debug) DebugPrint();
         }
 
-		public void SetRiver(Card c1)
+		public void SetRiver(Card c1, bool debug = false)
 		{
 			m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
 			m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
             m_CardRiver = c1;
 			m_iHandValue |= 1 << c1.GetValueIndex();
+
+			if (debug) DebugPrint();
 		}
-
-
-
-
 
         public void DebugPrint()
         {
+
+			Util.BinaryPrint(m_iHandValue);
 			Util.BinaryPrint(m_iFlushBit, 12);
 			Util.BinaryPrint(m_iStraightBit[0]);
 			Util.BinaryPrint(m_iStraightBit[1]);
 			Util.BinaryPrint(m_iStraightBit[2]);
 			Util.BinaryPrint(m_iStraightBit[3]);
-			Util.BinaryPrint(m_iHandValue);
+
 
             Console.WriteLine("----------------\n");
         }
