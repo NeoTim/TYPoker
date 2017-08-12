@@ -23,5 +23,19 @@ namespace TYPoker.Src
         {
 			Console.WriteLine(Convert.ToString(number, 2).PadLeft(pad, '0'));
         }
+
+
+        public static void DebugAssert(bool condition, string confirmation)
+        {
+            if(condition)
+            {
+                Console.WriteLine("Has " + confirmation);
+            }
+            else
+            {
+                Console.WriteLine("No " + confirmation);
+            }
+
+        }
     }
 }

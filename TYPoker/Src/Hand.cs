@@ -14,7 +14,6 @@ namespace TYPoker.Src
 
         //internal Int32 m_iHandValue;
         internal UInt32 m_uiHighCard;
-
         //TODO: tie breaker for each tier
 
         private Card[] m_CardHole = new Card[2];
@@ -103,16 +102,14 @@ namespace TYPoker.Src
 
         public void DebugPrint()
         {
-
-			Util.BinaryPrint(m_iHandValue);
+			// Util.BinaryPrint(m_iHandValue);
 			Util.BinaryPrint(m_iFlushBit, 12);
 			Util.BinaryPrint(m_iStraightBit[0]);
 			Util.BinaryPrint(m_iStraightBit[1]);
 			Util.BinaryPrint(m_iStraightBit[2]);
 			Util.BinaryPrint(m_iStraightBit[3]);
 
-
-            Console.WriteLine("----------------\n");
+            Console.WriteLine("----------------");
         }
 
 
