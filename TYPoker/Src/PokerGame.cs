@@ -46,13 +46,13 @@ namespace TYPoker.Src
             GoToNextStage();
 
             // Player A
-            Card holeA1 = new Card(ESuit.Clubs, ECardValue.Jack);
-            Card holeA2 = new Card(ESuit.Clubs, ECardValue.King);
+            Card holeA1 = new Card(ESuit.Clubs, ECardValue.Eight);
+            Card holeA2 = new Card(ESuit.Diamonds, ECardValue.Eight);
             m_listPlayers[0].m_hand.SetHole(holeA1, holeA2);
 
 			// Player B
-            Card holeB1 = new Card(ESuit.Diamonds, ECardValue.Ace);
-			Card holeB2 = new Card(ESuit.Hearts, ECardValue.Six);
+            Card holeB1 = new Card(ESuit.Spades, ECardValue.Seven);
+            Card holeB2 = new Card(ESuit.Hearts, ECardValue.Seven);
             m_listPlayers[1].m_hand.SetHole(holeB1, holeB2);
         }
 
@@ -60,9 +60,9 @@ namespace TYPoker.Src
         {
             GoToNextStage();
 
-			Card flop1 = new Card(ESuit.Spades, ECardValue.Two);
-			Card flop2 = new Card(ESuit.Clubs, ECardValue.Five);
-			Card flop3 = new Card(ESuit.Diamonds, ECardValue.Ten);
+            Card flop1 = new Card(ESuit.Diamonds, ECardValue.Five);
+            Card flop2 = new Card(ESuit.Spades, ECardValue.Five);
+            Card flop3 = new Card(ESuit.Clubs, ECardValue.Four);
 
             m_listPlayers[0].m_hand.SetFlop(flop1, flop2, flop3);
             m_listPlayers[1].m_hand.SetFlop(flop1, flop2, flop3);
@@ -71,7 +71,7 @@ namespace TYPoker.Src
         public void DealTurnCard()
         {
             GoToNextStage();
-            Card turn = new Card(ESuit.Clubs, ECardValue.Ace);
+            Card turn = new Card(ESuit.Diamonds, ECardValue.Four);
 
             m_listPlayers[0].m_hand.SetTurn(turn);
             m_listPlayers[1].m_hand.SetTurn(turn);
@@ -80,7 +80,7 @@ namespace TYPoker.Src
         public void DealRiverCard()
         {
             GoToNextStage();
-            Card river = new Card(ESuit.Diamonds, ECardValue.Jack);
+            Card river = new Card(ESuit.Diamonds, ECardValue.Three);
 
             m_listPlayers[0].m_hand.SetRiver(river);
             m_listPlayers[1].m_hand.SetRiver(river);
@@ -88,12 +88,12 @@ namespace TYPoker.Src
 
         public void DetermineWins()
         {
-            int val1, val2;
+            Int64 val1, val2;
 
-            val1 = CheckPlayerHand(m_listPlayers[0].m_hand);
+            val1 = PokerLogic.GetHandRank(m_listPlayers[0].m_hand);
 
             Console.WriteLine("\n\n");
-            val2 = CheckPlayerHand(m_listPlayers[1].m_hand);
+            val2 = PokerLogic.GetHandRank(m_listPlayers[1].m_hand);
 
 			Console.WriteLine("\n\n");
             if(val1 < val2)
@@ -109,47 +109,6 @@ namespace TYPoker.Src
                 Console.WriteLine("Player1 won; Player2 lost");
             }
 		}
-
-        private int CheckPlayerHand(Hand aHand)
-        {
-            aHand.DebugPrint();
-
-            // Utility value
-            if(PokerLogic.CheckStraightFlush(aHand)) // Royal Flush included
-            {
-                return 0x10000000;
-            }
-            else if (PokerLogic.CheckFourOfAKind(aHand))
-            {
-                return 0x01000000;
-            }
-            else if (PokerLogic.CheckFullHouse(aHand)) // NOTE: will check three of a kind here
-            {
-                return 0x00100000;
-            }
-            else if (PokerLogic.CheckFlush(aHand))
-            {
-                return 0x00010000;
-            }
-            else if(PokerLogic.CheckStraight(aHand))
-            {
-                return 0x00001000;
-            }
-            else if(PokerLogic.CheckThreeOfAKind(aHand))
-            {
-                return 0x00000100;
-            }
-            else if (PokerLogic.CheckPair(aHand) > 0)
-            {
-                return 0x00000010;
-            }
-            else
-            {
-                PokerLogic.CheckHighCard(aHand);
-                // check high card
-                return 0x00000001;
-            }
-        }
 
 
         public void GoToNextStage()

@@ -7,9 +7,9 @@ namespace TYPoker.Src
         {
         }
 
-		// 0 based
-		// 0, 1     --> 0
-		// 2 (10)   --> 1
+
+		// 0 or 1    --> 0
+		// 0b10      --> 1
 		public static UInt32 CalLowBit(Int32 b)
 		{
 			// C++
@@ -26,25 +26,27 @@ namespace TYPoker.Src
 				count++;
 			}
 
-			return count;
+			return count; // 0 based counting
 		}
-		/*
-				public static UInt32 CalHighBit(Int32 b)
-				{
-					if (b == 0) return 0; // unused
+		
 
-					UInt32 count = 0;
-					UInt32 v = 1;
+        // TODO: find a fast bit operation
+		public static UInt32 CalHighBit(Int32 b)
+		{
+			if (b == 0) return 0; // unused
 
-					while(b > v)
-					{
-						v <<= 1;
-						count++;
-					}
-					// 0 based counting
-					return count;
-				}
-		*/
+			UInt32 count = 0;
+			UInt32 v = 1;
+
+			while(b >= v)
+			{
+				v <<= 1;
+				count++;
+			}
+			
+			return count - 1; // 0 based counting
+		}
+		
 
 		// Bit Hacks:  at most 14-bit values in b, perfect for single suit
 		public static UInt32 CountBits(UInt32 b)

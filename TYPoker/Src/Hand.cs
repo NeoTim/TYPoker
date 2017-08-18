@@ -16,6 +16,9 @@ namespace TYPoker.Src
         internal UInt32 m_uiHighCard;
         //TODO: tie breaker for each tier
 
+        // The strucutres of the bits can vary
+        internal Int64 m_iTieBreakerBits;
+
         private Card[] m_CardHole = new Card[2];
 
         // Copy from Game
@@ -103,7 +106,7 @@ namespace TYPoker.Src
         public void DebugPrint()
         {
 			// Util.BinaryPrint(m_iHandValue);
-			Util.BinaryPrint(m_iFlushBit, 12);
+			Util.BinaryPrint(m_iFlushBit, "FlushBits: ", 12);
 			Util.BinaryPrint(m_iStraightBit[0]);
 			Util.BinaryPrint(m_iStraightBit[1]);
 			Util.BinaryPrint(m_iStraightBit[2]);

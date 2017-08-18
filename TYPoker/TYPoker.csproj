@@ -42,6 +42,7 @@
     <Compile Include="Src\Hand.cs" />
     <Compile Include="Src\Util.cs" />
     <Compile Include="Src\BitOperations.cs" />
+    <Compile Include="Src\TieBreakerLogic.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Src\" />
