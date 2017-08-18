@@ -6,15 +6,15 @@ namespace TYPoker.Src
 {
     public class PokerGame
     {
-		private EPokerStage m_eStage;
-		public EPokerStage Stage
-		{
-			get { return m_eStage; }
-		}
+        private EPokerStage m_eStage;
+        public EPokerStage Stage
+        {
+            get { return m_eStage; }
+        }
 
         public List<Player> m_listPlayers;
 
-		public PokerGame()
+        public PokerGame()
         {
             m_eStage = EPokerStage.Start;
 
@@ -47,7 +47,7 @@ namespace TYPoker.Src
             Card holeA2 = new Card(ESuit.Spades, ECardValue.Eight);
             m_listPlayers[0].m_hand.SetHole(holeA1, holeA2);
 
-			// Player B
+            // Player B
             Card holeB1 = new Card(ESuit.Spades, ECardValue.Ace);
             Card holeB2 = new Card(ESuit.Clubs, ECardValue.Two);
             m_listPlayers[1].m_hand.SetHole(holeB1, holeB2);
@@ -81,7 +81,7 @@ namespace TYPoker.Src
 
             m_listPlayers[0].m_hand.SetRiver(river);
             m_listPlayers[1].m_hand.SetRiver(river);
-		}
+        }
 
         public void DetermineWins()
         {
@@ -92,7 +92,7 @@ namespace TYPoker.Src
             Console.WriteLine("\n\n");
             val2 = PokerLogic.GetHandRank(m_listPlayers[1].m_hand);
 
-			Console.WriteLine("\n\n");
+            Console.WriteLine("\n\n");
             if(val1 < val2)
             {
                 Console.WriteLine("Player1 lost; Player2 won");
@@ -105,7 +105,7 @@ namespace TYPoker.Src
             {
                 Console.WriteLine("Player1 won; Player2 lost");
             }
-		}
+        }
 
 
         public void GoToNextStage()
@@ -127,7 +127,7 @@ namespace TYPoker.Src
                 case EPokerStage.River:
                     m_eStage = EPokerStage.Start;
                     break;
-				default:
+                default:
                     Console.WriteLine("Error: unknown game stage??? Added new stuff?");
                     break;
             }

@@ -15,7 +15,7 @@ namespace TYPoker.Src
         internal UInt32 m_uiHighCard;       // Used for tie breaking. Meaning/structure varies
         internal Int64 m_iTieBreakerBits;   // Used for tie breaking. Meaning/structure varies
 
-		private Card[] m_CardHole = new Card[2];
+        private Card[] m_CardHole = new Card[2];
 
         private Card[] m_CardFlop = new Card[3];
         private Card m_CardTurn;
@@ -48,13 +48,13 @@ namespace TYPoker.Src
 
         public void SetFlop(Card c1, Card c2, Card c3, bool debug = false)
         {
-			m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
-			m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c2.Suit];
+            m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
+            m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c2.Suit];
             m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c3.Suit];
 
-			m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
-			m_iStraightBit[(int)c2.Suit] |= 1 << c2.GetValueIndex();
-			m_iStraightBit[(int)c3.Suit] |= 1 << c3.GetValueIndex();
+            m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
+            m_iStraightBit[(int)c2.Suit] |= 1 << c2.GetValueIndex();
+            m_iStraightBit[(int)c3.Suit] |= 1 << c3.GetValueIndex();
 
             m_CardFlop[0] = c1;
             m_CardFlop[1] = c2;
@@ -69,25 +69,25 @@ namespace TYPoker.Src
             m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
             m_CardTurn = c1;
 
-			if (debug) DebugPrint();
+            if (debug) DebugPrint();
         }
 
-		public void SetRiver(Card c1, bool debug = false)
-		{
-			m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
-			m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
+        public void SetRiver(Card c1, bool debug = false)
+        {
+            m_iFlushBit += 1 << PokerLogic.s_aSuitShift[(int)c1.Suit];
+            m_iStraightBit[(int)c1.Suit] |= 1 << c1.GetValueIndex();
             m_CardRiver = c1;
 
-			if (debug) DebugPrint();
-		}
+            if (debug) DebugPrint();
+        }
 
         public void DebugPrint()
         {
-			Util.BinaryPrint(m_iFlushBit, "FlushBits: ", 12);
-			Util.BinaryPrint(m_iStraightBit[0]);
-			Util.BinaryPrint(m_iStraightBit[1]);
-			Util.BinaryPrint(m_iStraightBit[2]);
-			Util.BinaryPrint(m_iStraightBit[3]);
+            Util.BinaryPrint(m_iFlushBit, "FlushBits: ", 12);
+            Util.BinaryPrint(m_iStraightBit[0]);
+            Util.BinaryPrint(m_iStraightBit[1]);
+            Util.BinaryPrint(m_iStraightBit[2]);
+            Util.BinaryPrint(m_iStraightBit[3]);
 
             Console.WriteLine("----------------");
         }

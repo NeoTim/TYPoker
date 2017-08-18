@@ -1,12 +1,8 @@
-﻿using System;
+﻿﻿using System;
 namespace TYPoker.Src
 {
     public class Util
     {
-        public Util()
-        {
-        }
-
         /**
          *  Convert Int to Binary, example: 2 -> 0x10
          *  Set padding to display a fixed length
@@ -20,9 +16,8 @@ namespace TYPoker.Src
 
         public static void BinaryPrint64(Int64 number, int pad=64)
         {
-			Console.WriteLine(Convert.ToString(number, 2).PadLeft(pad, '0'));
+            Console.WriteLine(Convert.ToString(number, 2).PadLeft(pad, '0'));
         }
-
 
         public static void DebugAssert(bool condition, string confirmation)
         {
@@ -34,7 +29,6 @@ namespace TYPoker.Src
             {
                 Console.WriteLine("No " + confirmation);
             }
-
         }
     }
 }

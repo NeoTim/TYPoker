@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 namespace TYPoker.Src
 {
 
@@ -6,7 +6,6 @@ namespace TYPoker.Src
     {
         private ESuit m_eSuit;
         private ECardValue m_eCardValue;
-
 
         public Card(ESuit newSuit, ECardValue newCardValue)
         {

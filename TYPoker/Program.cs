@@ -23,6 +23,6 @@ namespace TYPoker
             aPokerGame.DetermineWins();
 
 
-		}
+        }
     }
 }
