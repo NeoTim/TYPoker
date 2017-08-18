@@ -21,45 +21,33 @@ namespace TYPoker.Src
 
     public class PokerLogic
     {
-
         public static readonly int[] s_aSuitShift = { 0, 3, 6, 9 };
 
 		public const UInt16 kSuitSize = 4;
 		public const UInt16 kCardValueSize = 13;
 
-        // 2^31 - 1 = 2147483647 -- 10 digits
-        public const Int64 kBaseStraightFlush   = 0x800000; // + [0xf], 7 digits in decimal
-        public const Int64 kBaseFourOfAkind     = 0x700000;
-        public const Int64 kBaseFullHouse       = 0x600000;
-        public const Int64 kBaseFlush           = 0x500000;
-        public const Int64 kBaseStraight        = 0x400000;
-        public const Int64 kBaseThreeOfAKind    = 0x300000; // + [0xeffff]
-
-		// TODO: figure out the proper range, this will have an overlap
-		public const Int64 kBaseTwoPair         = 0x200000; // TODO: + [0xfff]
-        public const Int64 kBaseOnePair         = 0x100000; // TODO: + [0xffff]
-
-        public const Int64 kBaseHighCard        = 0x000000; // + [2, 2^14] [0, 0xfffff]
-
-
-
-        public PokerLogic()
-        {
-        }
+        public const Int64 kBaseStraightFlush   = 0x800000; // + [0x5, 0xe], 7 digits in decimal
+        public const Int64 kBaseFourOfAkind     = 0x700000; // + [0x23, 0xed]
+		public const Int64 kBaseFullHouse       = 0x600000; // + [0x23, 0xed]
+		public const Int64 kBaseFlush           = 0x500000; // + [2, 2^14] 0b11110100000000 = 14616 < 0x4000 = 16384
+		public const Int64 kBaseStraight        = 0x400000; // + [0x5, 0xe]
+		public const Int64 kBaseThreeOfAKind    = 0x300000; // + [0xeffff]
+		public const Int64 kBaseTwoPair         = 0x200000; // + [0xedcbe]
+        public const Int64 kBaseOnePair         = 0x100000; // + [0xeffff]
+        public const Int64 kBaseHighCard        = 0x000000; // + [2, 2^14] 0b11110100000000 = 14616 < 0x4000 = 16384
 
         public static Int64 GetHandRank(Hand hand)
 		{
 			hand.DebugPrint();
 
-            Int64 aRank = 0;
-			// Utility value
+            Int64 aRank = 0;            // Utility value
+
 			if (CheckStraightFlush(hand)) // Royal Flush included
 			{
                 aRank = kBaseStraightFlush;
                 aRank += TieBreakerLogic.CalStraightFlushTB(hand.m_iTieBreakerBits);
 
                 Console.WriteLine("Straight Flush: util value = " + aRank);
-                return aRank;
 			}
 			else if (CheckFourOfAKind(hand))
 			{
@@ -67,7 +55,6 @@ namespace TYPoker.Src
                 aRank += TieBreakerLogic.CalFourOfAKindTB((Int32)hand.m_uiHighCard, hand.m_iTieBreakerBits);
 
                 Console.WriteLine("Four of a kind: util value = " + aRank);
-                return aRank;
 			}
 			else if (CheckFullHouse(hand)) // NOTE: will check three of a kind here
 			{
@@ -75,16 +62,13 @@ namespace TYPoker.Src
                 aRank += TieBreakerLogic.CalFullHouseTB((Int32)hand.m_uiHighCard, hand.m_iTieBreakerBits);
 
 				Console.WriteLine("Fullhouse: util value = " + aRank);
-				return aRank;
 			}
 			else if (CheckFlush(hand))
 			{
                 aRank = kBaseFlush;
-
                 aRank += TieBreakerLogic.CalFlushTieBreaker(hand.m_iTieBreakerBits);
 
                 Console.WriteLine("Flush: util value = " + aRank);
-				return aRank;
 			}
 			else if (CheckStraight(hand))
 			{
@@ -92,32 +76,39 @@ namespace TYPoker.Src
                 aRank += TieBreakerLogic.CalStraightTB(hand.m_iTieBreakerBits);
 
                 Console.WriteLine("Straight: util value = " + aRank);
-				return aRank;
 			}
 			else if (CheckThreeOfAKind(hand)) // Note: only retrieve results
 			{
                 aRank = kBaseThreeOfAKind;
-
                 aRank += TieBreakerLogic.CalThreeOfAKindTB((Int32)hand.m_uiHighCard, hand.m_iTieBreakerBits);
 
                 Console.Write("Three of a kind: util value = " + aRank);
-                return aRank;
 			}
 			else if (CheckPair(hand) > 1)
 			{
-                // TODO
+                aRank = kBaseTwoPair;
+                aRank += TieBreakerLogic.CalTwoPairTB((Int32)hand.m_uiHighCard, hand.m_iTieBreakerBits);
 
-				return 0x000000100;
+				Console.Write("Two pair: util value = " + aRank);
 			}
 			else if (CheckPair(hand) > 0)
 			{
-				return 0x000000010;
+                aRank = kBaseOnePair;
+                aRank += TieBreakerLogic.CalOnePairTB((Int32)hand.m_uiHighCard, hand.m_iTieBreakerBits);
+
+				Console.Write("One pair: util value = " + aRank);
 			}
 			else
 			{
-				CheckHighCard(hand);
-				return 0x00000001;
+                CheckHighCard(hand);
+
+                aRank = kBaseHighCard;
+                aRank += TieBreakerLogic.CalHighCardTB(hand.m_iTieBreakerBits);
+
+                Console.Write("High Card: util value = " + aRank);
 			}
+
+            return aRank;
 		}
 
 
@@ -200,7 +191,7 @@ namespace TYPoker.Src
 
                     if( pairBits != 0 )
                     {
-                        // Tie Breaker, use high pair
+                        // Tie Breaker, use high pair *value*
                         hand.m_iTieBreakerBits = BitOperations.CalHighBit(pairBits) + 1;
                         hand.m_bFullHouse = true;
                     }
@@ -211,10 +202,8 @@ namespace TYPoker.Src
                                                                      | hand.m_iStraightBit[2] | hand.m_iStraightBit[3]);
 
                         // Console.WriteLine("---!!!!-- " + hand.m_iTieBreakerBits);
-
                         hand.m_bFullHouse = false;
                     }
-
                 }
             }
 
@@ -249,7 +238,7 @@ namespace TYPoker.Src
 
             if(isFlush)
             {
-                // New Tie Breaker: if two players got flush, need to further compare the values
+                // New Tie Breaker
                 if(BitOperations.CountBits((UInt32)hand.m_iStraightBit[0]) >= 5)
                 {
                     hand.m_iTieBreakerBits = hand.m_iStraightBit[0];
@@ -279,23 +268,19 @@ namespace TYPoker.Src
 
             int allBits = hand.m_iStraightBit[0] | hand.m_iStraightBit[1] |
                           hand.m_iStraightBit[2] | hand.m_iStraightBit[3];
-
-
+            
             // A -> a
 			allBits |= hand.m_iStraightBit[0] >> 13 | hand.m_iStraightBit[1] >> 13 |
 					   hand.m_iStraightBit[2] >> 13 | hand.m_iStraightBit[3] >> 13;
+            
+            Int32 andAllBits;
+            andAllBits = allBits & (allBits << 1) & (allBits << 2) & (allBits << 3) & (allBits << 4);
 
-
-            Int32 tmpBits;
-            tmpBits = allBits & (allBits << 1) & (allBits << 2) & (allBits << 3) & (allBits << 4);
-
-            isStraight = tmpBits != 0;
-
+            isStraight = andAllBits != 0;
             if(isStraight)
             {
-				// New, tie breaker
-				hand.m_iTieBreakerBits = tmpBits;
-            }
+				hand.m_iTieBreakerBits = andAllBits; // Tie breaker
+			}
 
             Util.DebugAssert(isStraight, "Straight");
 
@@ -303,8 +288,7 @@ namespace TYPoker.Src
         }
 
 
-        // Could have two three of a kind
-        // E.g. Hole C2, C3, D2, D3, S3, H2, HA
+        // Called in Fullhouse check
         private static Int32 _CheckThreeOfAKind(Hand hand)
         {
             Int32 a = hand.m_iStraightBit[0] & hand.m_iStraightBit[1] & hand.m_iStraightBit[2];
@@ -350,8 +334,6 @@ namespace TYPoker.Src
 
         public static UInt32 CheckPair(Hand hand)
         {
-            // if (hand.m_bFourOfAKind || hand.m_bFullHouse || hand.m_bThreeOfAKind) return true;
-
             Int32 pairBits = (hand.m_iStraightBit[0] & hand.m_iStraightBit[1]) |
                              (hand.m_iStraightBit[0] & hand.m_iStraightBit[2]) |
                              (hand.m_iStraightBit[0] & hand.m_iStraightBit[3]) |
@@ -362,20 +344,44 @@ namespace TYPoker.Src
 
             UInt32 count = BitOperations.CountBits((UInt32)pairBits);
 
-            // TODO: eliminate 3 paris
-            // two pair bits + pick single high card
-            Console.WriteLine("Number of pairs: " + count);
+            if(count == 3) // Get rid of smallest pair
+            {
+                Int32 lowBit = (Int32)BitOperations.CalLowBit(pairBits) + 1;
 
+                pairBits = (pairBits >> lowBit) << lowBit;
+
+                Int32 restBits = ~pairBits & (hand.m_iStraightBit[0] | hand.m_iStraightBit[1] |
+                                              hand.m_iStraightBit[2] | hand.m_iStraightBit[3]);
+
+                hand.m_uiHighCard = BitOperations.CalHighBit(restBits) + 1; // High Card
+                hand.m_iTieBreakerBits = pairBits;  // Two Pair
+                count = 2;
+            }
+            else if(count == 2) // Two Pair + Single
+            {
+				Int32 restBits = ~pairBits & (hand.m_iStraightBit[0] | hand.m_iStraightBit[1] |
+										      hand.m_iStraightBit[2] | hand.m_iStraightBit[3]);
+
+				hand.m_uiHighCard = BitOperations.CalHighBit(restBits) + 1; // High Card
+                hand.m_iTieBreakerBits = pairBits;  // Two Pair
+            }
+            else if(count == 1) // Pair + Single + Single + Single
+			{
+                hand.m_uiHighCard = BitOperations.CalLowBit(pairBits) + 1; // One pair
+
+				Int32 restBits = ~pairBits & (hand.m_iStraightBit[0] | hand.m_iStraightBit[1] |
+							                  hand.m_iStraightBit[2] | hand.m_iStraightBit[3]);
+
+                hand.m_iTieBreakerBits = restBits;  // Rest bits
+            }
             return count;
         }
 
-        public static UInt32 CheckHighCard(Hand hand)
+        public static void CheckHighCard(Hand hand)
         {
-            // TODO
 
-            return 0;
+            hand.m_iTieBreakerBits = (hand.m_iStraightBit[0] | hand.m_iStraightBit[1] |
+                                      hand.m_iStraightBit[2] | hand.m_iStraightBit[3]);
         }
-
     }
-
 }

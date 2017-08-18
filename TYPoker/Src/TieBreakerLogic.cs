@@ -17,18 +17,13 @@ namespace TYPoker.Src
         //
         // Tie: straight flush cards are community cards
         // Utility Values are designed as below
-		// 10, J, Q, K, A --> 0x0e // 14
-		// 9, 10, J, Q, K --> 0x0d // 13
-		// 8
-		// 7
-		// 6
-		// 5
-		// 4
-		// 3
-		// 2
-		// A, 2, 3, 4, 5 --> 0x05
-        // (The highest card in the straight)
-        // AddVal = [5, 14]
+		// 10, J, Q, K, A --> 0xe // 14
+		// 9, 10, J, Q, K --> 0xd // 13
+		// ....
+		// 2, 3, 4, 5, 6 --> 0x6
+		// A, 2, 3, 4, 5 --> 0x5
+        // (Value is the highest card in the straight)
+        // AddVal = [0x5, 0xe]
 		public static Int64 CalStraightFlushTB(Int64 bits)
         {
             if (bits == 0) return 0;
@@ -36,23 +31,17 @@ namespace TYPoker.Src
             Int64 addVal = 0x00;
 
             //Console.WriteLine("bits = " + bits);
-            //Console.WriteLine("1<<32 = " + (1<<48));
             if(bits > kTwoTo48Minus1)
             {
                 bits >>= 48;
-                //Console.WriteLine("Right shift 48");
             }
-
             else if(bits > kTwoTo32Minus1)
             {
                 bits >>= 32;
-                //Console.WriteLine("Right shift 32");
             }
-
             else if(bits > kTwoTo16Minus1)
             {
                 bits >>= 16;
-                //Console.WriteLine("Right shift 16");
             }
 
             addVal = BitOperations.CalHighBit((Int32)bits) + 1;
@@ -95,16 +84,16 @@ namespace TYPoker.Src
         // 2nd digit: high pair
         //
         // addVal = [0x23, 0xed] ~ [35, 237]
-		public static Int64 CalFullHouseTB(Int32 tb1, Int64 bits)
+        public static Int64 CalFullHouseTB(Int32 threeOfAkindValue, Int64 pairValue)
 		{
-			if (bits == 0) return 0;
+			if (pairValue == 0) return 0;
 			Int64 addVal = 0x00;
 
-			addVal += tb1 << 4;
-			Console.WriteLine("tb1 = " + tb1 + ", addVal = " + addVal);
+			addVal += threeOfAkindValue << 4;
+			Console.WriteLine("tb1 = " + threeOfAkindValue + ", addVal = " + addVal);
 
-            addVal += bits;
-            Console.WriteLine("pair = " + bits + ", addVal = " + addVal);
+            addVal += pairValue;
+            Console.WriteLine("pair = " + pairValue + ", addVal = " + addVal);
 
 			return addVal;
 		}
@@ -125,7 +114,7 @@ namespace TYPoker.Src
         // 7, 5, 4, 3, 2 --> 94
         // Only care about the highest 5 cards
         //
-        // addVal = [94, 15616]
+        // addVal = [94, 15616] < 0x4000
 		public static Int64 CalFlushTieBreaker(Int64 bits)
         {
             Int64 addVal = 0x00;
@@ -147,7 +136,7 @@ namespace TYPoker.Src
 
 		// --------------- Straight Tie Breaker ------------------
 		// Pick highest straight
-		// addVal = [5, 14]
+		// addVal = [0x5, 0xe] 
 		public static Int64 CalStraightTB(Int64 bits)
 		{
 			if (bits == 0) return 0;
@@ -164,16 +153,18 @@ namespace TYPoker.Src
 
 
 		// --------------- Three of a kind Tie Breaker ------------------
-        // High threeOfAkind + 2 single cards
-        //           0x[2-e]0000 + 0xffff (int converted from straight bits)
+		// High threeOfAkind + 2 single cards
+		//           0x[2-e]0000 + 0xffff (int converted from straight bits)
 		//                         2^12 + 2^13 = 12288 (K,A)
 		//                         2^1  + 2^2  = 6     (2,3)
-        // addVal < 1048575 (0x100000)
+		// addVal < 1048575 (0x100000)
+		// << 16 three of a kind value + high 2 bits
+		// (14 x 65536 + 16384 = 933,888 < 0x100000 = 1,048,576)
 		public static Int64 CalThreeOfAKindTB(Int32 tb1, Int64 bits)
 		{
-            Console.WriteLine("tb1 = " + tb1);
+            Console.WriteLine("TB: three of a kind: " + tb1);
 
-            Util.BinaryPrint((int)bits, "single cards bit: ");
+            //Util.BinaryPrint((int)bits, "single cards bit: ");
 
 			if (tb1 == 0 && bits == 0) return 0;
 
@@ -197,24 +188,66 @@ namespace TYPoker.Src
 		}
 
 
-        // TODO: << 4 pair bits
-        //          + high card
-		public static Int64 CalTwoPairTB(Int64 bits)
+        // << 4 pair bits + high card value
+		public static Int64 CalTwoPairTB(Int32 tb1, Int64 bits)
+		{
+			if (tb1 == 0 && bits == 0) return 0;
+			Int64 addVal = 0x00;
+
+            Util.BinaryPrint((Int32)bits, "TB: TwoPair bits: ");
+
+            addVal += bits << 4;    // bits that contain two pairs
+            addVal += tb1;          // highest single card
+
+            Console.WriteLine("TB: TwoPair " + addVal + " (high card = " + tb1 + ")");
+			return addVal;
+		}
+
+        // << 16 pair value + high 3 bits
+        public static Int64 CalOnePairTB(Int32 tb1, Int64 bits)
+        {
+			if (tb1 == 0 && bits == 0) return 0;
+			Int64 addVal = 0x00;
+
+            Console.WriteLine("TB: OnePair, has a pair of " + tb1);
+            addVal += tb1 << 16; // the pair
+
+
+			// Compare highest 3 single cards
+			while (BitOperations.CountBits((uint)bits) > 3)
+			{
+				Int32 lowBit = (Int32)BitOperations.CalLowBit((Int32)bits) + 1;
+				bits = (bits >> lowBit) << lowBit;
+			}
+
+            addVal += bits;      // the rest single bits, no need to select high 3
+
+
+            Util.BinaryPrint((Int32)bits, "TB: OnePair Single card bits: ");
+            Console.WriteLine("TB: OnePair " + addVal);
+            return addVal;
+        }
+
+		
+		public static Int64 CalHighCardTB(Int64 bits)
 		{
 			if (bits == 0) return 0;
 			Int64 addVal = 0x00;
 
+			// Compare highest 5 cards
+			while (BitOperations.CountBits((uint)bits) > 5)
+			{
+				Int32 lowBit = (Int32)BitOperations.CalLowBit((Int32)bits) + 1;
+
+				bits = (bits >> lowBit) << lowBit;
+			}
+
+            addVal += bits;
+
+			Util.BinaryPrint((Int32)bits, "TB: High Card bits: ");
+			Console.WriteLine("TB: High Card " + addVal);
 			return addVal;
 		}
-
-		/*
-		public static Int64 CalFourOfAKindTB(Int64 bits)
-		{
-			if (bits == 0) return 0;
-			Int64 addVal = 0x00;
-
-			return addVal;
-		}
-		*/
+		
 	}
 }
